@@ -1,9 +1,10 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { auth } from "./Config"; // Ensure this file exists
-import Login from "./Login";
-import Signup from "./Signup";
-import Home from "./Home";
+import { auth } from "./Config.js"; // Ensure this file exists
+import Login from "./Login.jsx";
+import Signup from "./Signup.jsx";
+import Home from "./Home.jsx";
+import Output from "./Output.jsx"; // Import Output page
 
 function App() {
   const [user, setUser] = useState(null);
@@ -32,6 +33,7 @@ function App() {
       <Route path="/" element={!user ? <Login /> : <Navigate to="/home" />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/home" element={user ? <Home /> : <Navigate to="/" />} />
+      <Route path="/output" element={user ? <Output /> : <Navigate to="/" />} /> {/* Protects Output Page */}
     </Routes>
   );
 }
