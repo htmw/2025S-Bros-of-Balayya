@@ -6,6 +6,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleLogin = async () => {
@@ -13,61 +14,51 @@ function Login() {
       await signInWithEmailAndPassword(auth, email, password);
       navigate("/home"); // Redirect to Home Page after login
     } catch (error) {
-      alert(error.message);
+      setError("Invalid email or password.");
     }
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gradient-to-br from-blue-500 to-indigo-600">
-      <div className="bg-white bg-opacity-20 backdrop-blur-lg p-8 rounded-2xl shadow-lg w-96 border border-white/20">
-        <h1 className="text-4xl font-extrabold text-white text-center mb-6">QuickRecap</h1>
-        <p className="text-gray-200 text-center mb-6">Sign in to continue</p>
+    <div style={styles.container}>
+      <div style={styles.card}>
+        <h1 style={styles.title}>QuickRecap</h1>
+        <p style={styles.subtitle}>Sign in to continue</p>
 
-        {/* Username Input */}
-        <div className="mb-3">
-          <label className="text-white font-semibold mb-2 block" htmlFor="email">
-            Username:
-          </label>
+        {error && <p style={styles.errorMessage}>{error}</p>}
+
+        {/* Email Input */}
+        <div style={styles.inputContainer}>
+          <label style={styles.label}>Email:</label>
           <input
-            id="email"
             type="email"
-            placeholder="Email"
+            placeholder="Enter your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="border border-gray-300 p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+            style={styles.input}
           />
         </div>
 
         {/* Password Input */}
-        <div className="mb-6">
-          <label className="text-white font-semibold mb-2 block" htmlFor="password">
-            Password:
-          </label>
+        <div style={styles.inputContainer}>
+          <label style={styles.label}>Password:</label>
           <input
-            id="password"
             type="password"
-            placeholder="Password"
+            placeholder="Enter your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="border border-gray-300 p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+            style={styles.input}
           />
         </div>
 
         {/* Login Button */}
-        <button
-          onClick={handleLogin}
-          className="bg-blue-600 text-white p-3 rounded-lg w-full font-semibold hover:bg-blue-700 transition duration-300"
-        >
+        <button onClick={handleLogin} style={styles.button}>
           Login
         </button>
 
         {/* Signup Link */}
-        <p className="text-gray-200 text-center mt-4">
+        <p style={styles.signupText}>
           New user?{" "}
-          <span
-            className="text-white font-semibold cursor-pointer hover:underline"
-            onClick={() => navigate("/signup")}
-          >
+          <span onClick={() => navigate("/signup")} style={styles.signupLink}>
             Signup
           </span>
         </p>
@@ -75,5 +66,86 @@ function Login() {
     </div>
   );
 }
+
+const styles = {
+  container: {
+    minHeight: "100vh",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    background: "linear-gradient(to right, #007bff, #6610f2)",
+  },
+  card: {
+    background: "rgba(255, 255, 255, 0.2)",
+    backdropFilter: "blur(12px)",
+    padding: "30px",
+    borderRadius: "12px",
+    boxShadow: "0px 8px 16px rgba(0, 0, 0, 0.2)",
+    width: "350px",
+    textAlign: "center",
+    border: "1px solid rgba(255, 255, 255, 0.3)",
+  },
+  title: {
+    fontSize: "28px",
+    fontWeight: "bold",
+    color: "#fff",
+    marginBottom: "10px",
+  },
+  subtitle: {
+    fontSize: "16px",
+    color: "#ddd",
+    marginBottom: "20px",
+  },
+  inputContainer: {
+    marginBottom: "15px",
+    textAlign: "left",
+  },
+  label: {
+    color: "#fff",
+    fontWeight: "600",
+    marginBottom: "6px",
+    display: "block",
+  },
+  input: {
+    width: "100%",
+    padding: "12px",
+    fontSize: "14px",
+    borderRadius: "6px",
+    border: "1px solid #ddd",
+    outline: "none",
+    transition: "border 0.3s",
+  },
+  button: {
+    width: "100%",
+    padding: "12px",
+    fontSize: "16px",
+    fontWeight: "bold",
+    borderRadius: "6px",
+    border: "none",
+    background: "#007bff",
+    color: "#fff",
+    cursor: "pointer",
+    transition: "0.3s",
+  },
+  errorMessage: {
+    background: "#ff4d4d",
+    color: "white",
+    padding: "10px",
+    borderRadius: "5px",
+    marginBottom: "10px",
+    fontSize: "14px",
+  },
+  signupText: {
+    marginTop: "15px",
+    fontSize: "14px",
+    color: "#ddd",
+  },
+  signupLink: {
+    color: "#fff",
+    fontWeight: "bold",
+    cursor: "pointer",
+    textDecoration: "underline",
+  },
+};
 
 export default Login;

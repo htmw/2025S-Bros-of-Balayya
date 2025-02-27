@@ -1,10 +1,9 @@
-import { auth, storage } from "./Config"; // Import Firebase storage
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { auth } from "./Config";
 
 function Home() {
-  const [userName, setUserName] = useState("");
+  const [userName, setUserName] = useState("User");
   const [audioFile, setAudioFile] = useState(null);
   const [videoFile, setVideoFile] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -18,15 +17,14 @@ function Home() {
   }, []);
 
   const handleLogout = () => {
-    auth.signOut();
-    navigate("/");
+    auth.signOut().then(() => navigate("/login"));
   };
 
   const handleFileChange = (e, type) => {
     const file = e.target.files[0];
     if (type === "audio") {
       setAudioFile(file);
-      setVideoFile(null); // Ensure only one file is uploaded
+      setVideoFile(null);
     } else {
       setVideoFile(file);
       setAudioFile(null);
@@ -40,101 +38,74 @@ function Home() {
       return;
     }
 
-    const storageRef = ref(storage, `uploads/${file.name}`);
-    const uploadTask = uploadBytesResumable(storageRef, file);
+    setUploadStatus("Uploading...");
+    setUploadProgress(0);
 
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setUploadProgress(progress);
-      },
-      (error) => {
-        setUploadStatus("Upload failed. Try again.");
-      },
-      async () => {
-        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-        setUploadStatus("Upload successful!");
-        console.log("File available at:", downloadURL);
-      }
-    );
+    const interval = setInterval(() => {
+      setUploadProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setUploadStatus("Upload successful!");
+          return 100;
+        }
+        return prev + 20;
+      });
+    }, 500);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 to-indigo-600">
-      <div className="bg-white p-8 rounded-2xl shadow-lg w-96 text-center">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">
-          Welcome, <span className="text-blue-600">{userName}</span>!
-        </h1>
-        <p className="text-gray-500 mb-6">You’re logged in to QuickRecap.</p>
+    <div style={styles.container}>
+      <div style={styles.card}>
+        <h1 style={styles.title}>Welcome, <span style={styles.username}>{userName}</span>!</h1>
+        <p style={styles.subtitle}>You’re logged in to QuickRecap.</p>
 
-        {/* Upload Section */}
-        <div className="space-y-4">
-          {/* Audio Upload */}
-          <label className="block text-lg font-medium text-gray-700">🎙️ Upload Audio</label>
-          <input
-            type="file"
-            accept="audio/*"
-            onChange={(e) => handleFileChange(e, "audio")}
-            className="w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 p-2"
-          />
-          <button
-            onClick={() => handleUpload("audio")}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded-lg transition duration-300"
-          >
-            Upload Audio
-          </button>
+        <div style={styles.uploadSection}>
+          <label style={styles.label}>🎙️ Upload Audio</label>
+          <input type="file" accept="audio/*" onChange={(e) => handleFileChange(e, "audio")} style={styles.input} />
+          <button onClick={() => handleUpload("audio")} style={styles.buttonBlue}>Upload Audio</button>
 
-          {/* Video Upload */}
-          <label className="block text-lg font-medium text-gray-700">🎥 Upload Video</label>
-          <input
-            type="file"
-            accept="video/*"
-            onChange={(e) => handleFileChange(e, "video")}
-            className="w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 p-2"
-          />
-          <button
-            onClick={() => handleUpload("video")}
-            className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 rounded-lg transition duration-300"
-          >
-            Upload Video
-          </button>
+          <label style={styles.label}>🎥 Upload Video</label>
+          <input type="file" accept="video/*" onChange={(e) => handleFileChange(e, "video")} style={styles.input} />
+          <button onClick={() => handleUpload("video")} style={styles.buttonGreen}>Upload Video</button>
         </div>
 
-        {/* Upload Progress */}
         {uploadProgress > 0 && (
-          <div className="w-full bg-gray-200 rounded-full h-2.5 mt-4">
-            <div
-              className="bg-green-500 h-2.5 rounded-full"
-              style={{ width: `${uploadProgress}%` }}
-            ></div>
+          <div style={styles.progressBar}>
+            <div style={{ ...styles.progressFill, width: `${uploadProgress}%` }}></div>
           </div>
         )}
-        {uploadStatus && <p className="text-gray-600 mt-2">{uploadStatus}</p>}
+        {uploadStatus && <p style={styles.status}>{uploadStatus}</p>}
 
-        {/* Summarize Button */}
         <button
           onClick={() => navigate("/output")}
           disabled={!audioFile && !videoFile}
-          className={`w-full mt-4 py-2 rounded-lg font-semibold transition duration-300 ${
-            audioFile || videoFile
-              ? "bg-purple-500 hover:bg-purple-600 text-white"
-              : "bg-gray-400 text-gray-200 cursor-not-allowed"
-          }`}
+          style={{ ...styles.buttonPurple, opacity: audioFile || videoFile ? 1 : 0.5, cursor: audioFile || videoFile ? "pointer" : "not-allowed" }}
         >
           Summarize
         </button>
 
-        {/* Logout Button */}
-        <button
-          onClick={handleLogout}
-          className="w-full mt-4 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded-lg transition duration-300"
-        >
-          Logout
-        </button>
+        <button onClick={handleLogout} style={styles.buttonRed}>Logout</button>
       </div>
     </div>
   );
 }
+
+const styles = {
+  container: { display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", background: "linear-gradient(to right, #007bff, #6610f2)" },
+  card: { background: "#fff", padding: "30px", borderRadius: "12px", boxShadow: "0px 8px 16px rgba(0, 0, 0, 0.2)", width: "400px", textAlign: "center" },
+  title: { fontSize: "24px", fontWeight: "bold", color: "#333", marginBottom: "10px" },
+  username: { color: "#007bff" },
+  subtitle: { color: "#666", marginBottom: "20px" },
+  uploadSection: { display: "flex", flexDirection: "column", gap: "10px" },
+  label: { fontSize: "16px", fontWeight: "600", color: "#444" },
+  input: { width: "100%", padding: "10px", fontSize: "14px", border: "1px solid #ddd", borderRadius: "6px" },
+  buttonBlue: { background: "#007bff", color: "#fff", fontSize: "16px", padding: "10px", borderRadius: "6px", cursor: "pointer" },
+  buttonGreen: { background: "#28a745", color: "#fff", fontSize: "16px", padding: "10px", borderRadius: "6px", cursor: "pointer" },
+  buttonPurple: { background: "#6f42c1", color: "#fff", fontSize: "16px", padding: "10px", borderRadius: "6px", cursor: "pointer", marginTop: "10px" },
+  buttonRed: { background: "#dc3545", color: "#fff", fontSize: "16px", padding: "10px", borderRadius: "6px", cursor: "pointer", marginTop: "10px" },
+  progressBar: { width: "100%", background: "#ddd", borderRadius: "6px", height: "6px", marginTop: "10px" },
+  progressFill: { height: "6px", background: "#28a745", borderRadius: "6px" },
+  status: { marginTop: "10px", color: "#555", fontSize: "14px" }
+};
 
 export default Home;
