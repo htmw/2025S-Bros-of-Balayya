@@ -55,7 +55,15 @@ function Home() {
 
   return (
     <div style={styles.container}>
+      <div style={styles.overlay}></div> {/* Dark overlay for better readability */}
       <div style={styles.card}>
+        {/* Image at the top of the card */}
+        <img 
+          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdXaNFHstyVpuMdfBNDz21LOOdQ4HiJh1OsQ&s" 
+          alt="QuickRecap" 
+          style={styles.headerImage} 
+        />
+
         <h1 style={styles.title}>Welcome, <span style={styles.username}>{userName}</span>!</h1>
         <p style={styles.subtitle}>You’re logged in to QuickRecap.</p>
 
@@ -91,8 +99,36 @@ function Home() {
 }
 
 const styles = {
-  container: { display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", background: "linear-gradient(to right, #007bff, #6610f2)" },
-  card: { background: "#fff", padding: "30px", borderRadius: "12px", boxShadow: "0px 8px 16px rgba(0, 0, 0, 0.2)", width: "400px", textAlign: "center" },
+  container: { 
+    display: "flex", 
+    justifyContent: "center", 
+    alignItems: "center", 
+    height: "100vh", 
+    background: `url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdXaNFHstyVpuMdfBNDz21LOOdQ4HiJh1OsQ&s') no-repeat center center/cover`,
+    position: "relative"
+  },
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Adds a dark overlay for better readability
+  },
+  card: { 
+    background: "#fff", 
+    padding: "30px", 
+    borderRadius: "12px", 
+    boxShadow: "0px 8px 16px rgba(0, 0, 0, 0.2)", 
+    width: "400px", 
+    textAlign: "center",
+    zIndex: 1, // Ensures it stays above the overlay
+  },
+  headerImage: {
+    width: "100%",
+    borderRadius: "10px",
+    marginBottom: "10px",
+  },
   title: { fontSize: "24px", fontWeight: "bold", color: "#333", marginBottom: "10px" },
   username: { color: "#007bff" },
   subtitle: { color: "#666", marginBottom: "20px" },

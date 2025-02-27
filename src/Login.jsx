@@ -57,7 +57,7 @@ function Login() {
 
         {/* Signup Link */}
         <p style={styles.signupText}>
-          New user?{" "}
+          <span style={styles.newUserText}>New user?</span>{" "}
           <span onClick={() => navigate("/signup")} style={styles.signupLink}>
             Signup
           </span>
@@ -73,7 +73,11 @@ const styles = {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    background: "linear-gradient(to right, #007bff, #6610f2)",
+    backgroundImage:
+      "url('https://t3.ftcdn.net/jpg/05/61/61/36/360_F_561613631_mVmmaQn83oibz1ZzIiOfGBFv7CUp3ucw.jpg')", // Your provided image URL
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
   },
   card: {
     background: "rgba(255, 255, 255, 0.2)",
@@ -88,12 +92,12 @@ const styles = {
   title: {
     fontSize: "28px",
     fontWeight: "bold",
-    color: "#fff",
+    color: "#000000", // Black for better contrast
     marginBottom: "10px",
   },
   subtitle: {
     fontSize: "16px",
-    color: "#ddd",
+    color: "#000000", // Black for better contrast
     marginBottom: "20px",
   },
   inputContainer: {
@@ -101,7 +105,7 @@ const styles = {
     textAlign: "left",
   },
   label: {
-    color: "#fff",
+    color: "#1A237E", // Dark Blue
     fontWeight: "600",
     marginBottom: "6px",
     display: "block",
@@ -128,7 +132,7 @@ const styles = {
     transition: "0.3s",
   },
   errorMessage: {
-    background: "#ff4d4d",
+    background: "#8B0000", // Dark Red
     color: "white",
     padding: "10px",
     borderRadius: "5px",
@@ -138,10 +142,12 @@ const styles = {
   signupText: {
     marginTop: "15px",
     fontSize: "14px",
-    color: "#ddd",
+  },
+  newUserText: {
+    color: "#333333", // Dark Gray for "New user?"
   },
   signupLink: {
-    color: "#fff",
+    color: "#4B0082", // Deep Purple for "Signup" link
     fontWeight: "bold",
     cursor: "pointer",
     textDecoration: "underline",
