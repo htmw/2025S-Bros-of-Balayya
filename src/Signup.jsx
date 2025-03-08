@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { doc, setDoc } from "firebase/firestore";
-import { auth, db } from "./Config"; // ✅ Import Firebase instances
-import { createUserWithEmailAndPassword } from "firebase/auth"; // ✅ Import Firebase auth function
+import { auth, db } from "./Config";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 function Signup() {
   const [formData, setFormData] = useState({
@@ -15,27 +15,10 @@ function Signup() {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [passwordStrength, setPasswordStrength] = useState({
-    length: false,
-    number: false,
-    specialChar: false,
-    uppercase: false,
-  });
-  const [showPasswordRules, setShowPasswordRules] = useState(false);
   const navigate = useNavigate();
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handlePasswordChange = (password) => {
-    setFormData({ ...formData, password });
-    setPasswordStrength({
-      length: password.length >= 8,
-      number: /\d/.test(password),
-      specialChar: /[!@#$%^&*]/.test(password),
-      uppercase: /[A-Z]/.test(password),
-    });
   };
 
   const handleSignup = async () => {
@@ -44,7 +27,7 @@ function Signup() {
     setLoading(true);
 
     if (Object.values(formData).some((field) => !field)) {
-      setError("All fields are mandatory.");
+      setError("All fields are required.");
       setLoading(false);
       return;
     }
@@ -53,17 +36,10 @@ function Signup() {
       setLoading(false);
       return;
     }
-    if (!Object.values(passwordStrength).every(Boolean)) {
-      setError("Password must meet all strength requirements.");
-      setLoading(false);
-      return;
-    }
 
     try {
-      console.log("Starting signup process...");
       const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
       const user = userCredential.user;
-      console.log("User created:", user.uid);
 
       await setDoc(doc(db, "users", user.uid), {
         firstName: formData.firstName,
@@ -71,57 +47,48 @@ function Signup() {
         email: formData.email,
         createdAt: new Date(),
       });
-      console.log("User data stored in Firestore.");
 
       setSuccessMessage("Signup successful! Redirecting...");
-      setLoading(false);
-
-      // ✅ Redirect to login destination (same as login redirection)
       setTimeout(() => navigate("/"), 2000);
     } catch (error) {
-      console.error("Signup error:", error.message);
       setError(error.message);
-      setLoading(false);
     }
+    setLoading(false);
   };
 
   return (
     <div style={styles.container}>
-      <div style={styles.formBox}>
+      <div style={styles.card}>
         <h1 style={styles.title}>QuickRecap</h1>
-        <p style={styles.subtitle}>Create an account</p>
+        <p style={styles.subtitle}>Create an Account</p>
 
-        {error && <div style={styles.errorPopup}>{error}</div>}
-        {successMessage && <div style={styles.successPopup}>{successMessage}</div>}
+        {error && <p style={styles.errorMessage}>{error}</p>}
+        {successMessage && <p style={styles.successMessage}>{successMessage}</p>}
 
+        {/* Input Fields */}
         {["firstName", "lastName", "email", "password", "confirmPassword"].map((field, index) => (
-          <div key={index}>
+          <div key={index} style={styles.inputContainer}>
             <label style={styles.label}>{field.replace(/([A-Z])/g, ' $1').trim()}:</label>
             <input
               type={field.includes("password") ? "password" : "text"}
               name={field}
+              placeholder={`Enter ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`}
               value={formData[field]}
-              onChange={field === "password" ? (e) => { handlePasswordChange(e.target.value); setShowPasswordRules(true); } : handleInputChange}
+              onChange={handleInputChange}
               style={styles.input}
             />
           </div>
         ))}
 
-        {showPasswordRules && (
-          <div style={styles.passwordRules}>
-            {Object.entries(passwordStrength).map(([rule, isValid], idx) => (
-              <p key={idx} style={isValid ? styles.validRule : styles.invalidRule}>
-                ✔ {rule.charAt(0).toUpperCase() + rule.slice(1).replace(/([A-Z])/g, ' $1')}
-              </p>
-            ))}
-          </div>
-        )}
-
+        {/* Signup Button */}
         <button onClick={handleSignup} style={styles.button} disabled={loading}>
           {loading ? "Signing Up..." : "Signup"}
         </button>
+
+        {/* Login Redirect */}
         <p style={styles.footerText}>
-          Already have an account? <span style={styles.link} onClick={() => navigate("/")}>Login</span>
+          Already have an account?{" "}
+          <span style={styles.link} onClick={() => navigate("/")}>Login</span>
         </p>
       </div>
     </div>
@@ -130,88 +97,97 @@ function Signup() {
 
 const styles = {
   container: {
+    minHeight: "100vh",
     display: "flex",
-    alignItems: "center",
     justifyContent: "center",
-    height: "100vh",
-    background: "grey",
-    padding: "20px",
+    alignItems: "center",
+    backgroundImage:
+      "url('https://t3.ftcdn.net/jpg/05/61/61/36/360_F_561613631_mVmmaQn83oibz1ZzIiOfGBFv7CUp3ucw.jpg')",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
   },
-  formBox: {
-    background: "#1e1e1e",
+  card: {
+    background: "rgba(255, 255, 255, 0.2)",
+    backdropFilter: "blur(12px)",
     padding: "30px",
     borderRadius: "12px",
-    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.5)",
+    boxShadow: "0px 8px 16px rgba(0, 0, 0, 0.2)",
     width: "350px",
     textAlign: "center",
-    color: "white",
+    border: "1px solid rgba(255, 255, 255, 0.3)",
   },
   title: {
     fontSize: "28px",
     fontWeight: "bold",
+    color: "#000",
     marginBottom: "10px",
   },
   subtitle: {
     fontSize: "16px",
-    color: "#A9A9A9",
+    color: "#000",
     marginBottom: "20px",
   },
-  label: {
+  inputContainer: {
+    width: "100%",  // Ensures alignment
+    marginBottom: "15px",
     textAlign: "left",
+  },
+  label: {
+    color: "#1A237E",
+    fontWeight: "600",
+    marginBottom: "6px",
     display: "block",
-    marginTop: "10px",
-    fontSize: "14px",
-    color: "#D3D3D3",
   },
   input: {
-    width: "100%",
-    padding: "10px",
-    marginTop: "5px",
-    borderRadius: "6px",
-    border: "1px solid #555",
-    background: "#2c2c2c",
-    color: "white",
+    width: "calc(100% - 24px)",  // Makes input align perfectly within the box
+    padding: "12px",
     fontSize: "14px",
+    borderRadius: "6px",
+    border: "1px solid #ddd",
     outline: "none",
+    display: "block",
+    margin: "0 auto",
+    transition: "border 0.3s",
   },
   button: {
     width: "100%",
-    padding: "10px",
-    background: "#4CAF50",
-    border: "none",
-    borderRadius: "6px",
+    padding: "12px",
     fontSize: "16px",
-    color: "white",
+    fontWeight: "bold",
+    borderRadius: "6px",
+    border: "none",
+    background: "#007bff",
+    color: "#fff",
     cursor: "pointer",
-    marginTop: "15px",
-  },
-  passwordRules: {
-    textAlign: "left",
+    transition: "0.3s",
     marginTop: "10px",
-    fontSize: "12px",
   },
-  validRule: { color: "#4CAF50" },
-  invalidRule: { color: "#FF4D4D" },
+  errorMessage: {
+    background: "#8B0000",
+    color: "white",
+    padding: "10px",
+    borderRadius: "5px",
+    marginBottom: "10px",
+    fontSize: "14px",
+  },
+  successMessage: {
+    background: "#28a745",
+    color: "white",
+    padding: "10px",
+    borderRadius: "5px",
+    marginBottom: "10px",
+    fontSize: "14px",
+  },
   footerText: {
     marginTop: "15px",
-    color: "#A9A9A9",
+    fontSize: "14px",
   },
   link: {
-    color: "#32CD32",
-    cursor: "pointer",
+    color: "#4B0082",
     fontWeight: "bold",
-  },
-  errorPopup: {
-    background: "#ff4d4d",
-    padding: "10px",
-    borderRadius: "6px",
-    marginBottom: "10px",
-  },
-  successPopup: {
-    background: "#4CAF50",
-    padding: "10px",
-    borderRadius: "6px",
-    marginBottom: "10px",
+    cursor: "pointer",
+    textDecoration: "underline",
   },
 };
 
