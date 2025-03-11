@@ -1,8 +1,3 @@
-# React + Vite
+# Quick Recap
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Meetings are essential, but reviewing recordings and notes is time-consuming and often inefficient. Quick Recap solves this problem by providing personalized, AI-powered summaries of meetings, saving users time and maximizing the value of meeting content. Its a web application for enhanced meeting productivity that provides personalized summaries of meeting recordings. It employs natural language processing (NLP) for summary generation. It highlights the most relevant information based on user profiles. It also enables users to quickly grasp key takeaways without reviewing lengthy recordings.
