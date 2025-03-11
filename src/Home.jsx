@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth, db } from "./Config"; // ✅ Import Firestore
-import { doc, getDoc } from "firebase/firestore"; // ✅ Import Firestore functions
+import { auth, db, storage } from "./Config"; // Import storage
+import { doc, getDoc, updateDoc } from "firebase/firestore"; // Import Firestore functions
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage"; // Firebase Storage functions
 
 function Home() {
   const [userName, setUserName] = useState("User");
@@ -15,12 +16,12 @@ function Home() {
     const fetchUserData = async () => {
       if (auth.currentUser) {
         try {
-          // 🔥 Fetch user's Firestore document using UID
+          // Fetch user's Firestore document using UID
           const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
 
           if (userDoc.exists()) {
             const userData = userDoc.data();
-            setUserName(`${userData.firstName} ${userData.lastName}`); // ✅ Set full name
+            setUserName(`${userData.firstName} ${userData.lastName}`); // Set full name
           } else {
             console.log("No user data found in Firestore.");
           }
@@ -55,16 +56,34 @@ function Home() {
     setUploadStatus("Uploading...");
     setUploadProgress(0);
 
-    const interval = setInterval(() => {
-      setUploadProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setUploadStatus("Upload successful!");
-          return 100;
+    // Create a reference to Firebase Storage
+    const storageRef = ref(storage, `videos/${file.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    // Monitor the upload progress
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        setUploadProgress(progress);
+      },
+      (error) => {
+        console.error("Upload failed:", error);
+        setUploadStatus("Upload failed.");
+      },
+      async () => {
+        // Get the download URL after successful upload
+        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+        
+        // Save the URL in Firestore under the user's document
+        if (auth.currentUser) {
+          const userRef = doc(db, "users", auth.currentUser.uid);
+          await updateDoc(userRef, { videoUrl: downloadURL });
         }
-        return prev + 20;
-      });
-    }, 500);
+
+        setUploadStatus("Upload successful!");
+      }
+    );
   };
 
   return (
@@ -105,7 +124,7 @@ function Home() {
           style={{ ...styles.summarizeButton, opacity: file ? 1 : 0.5 }}
           disabled={!file}
         >
-          Summarize
+          Transcribe
         </button>
 
         {/* Logout Button */}
@@ -130,8 +149,8 @@ const styles = {
     backgroundRepeat: "no-repeat",
   },
   card: {
-    background: "rgba(255, 255, 255, 0.9)", // Solid white with slight transparency
-    backdropFilter: "blur(5px)", // Light blur effect for a modern touch
+    background: "rgba(255, 255, 255, 0.9)", 
+    backdropFilter: "blur(5px)", 
     padding: "30px",
     borderRadius: "12px",
     boxShadow: "0px 8px 16px rgba(0, 0, 0, 0.2)",
