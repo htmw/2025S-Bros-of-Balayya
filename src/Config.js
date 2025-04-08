@@ -7,13 +7,13 @@ import { getStorage } from "firebase/storage"; // ✅ Import Storage
 
 // Firebase Configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyDgB6o6FQO2kcbYx4Gai3w6y5l4xSAIvVM",
-  authDomain: "quickbite-2804b.firebaseapp.com",
-  projectId: "quickbite-2804b",
-  storageBucket: "quickbite-2804b.firebasestorage.app",
-  messagingSenderId: "1020510104720",
-  appId: "1:1020510104720:web:64d152a9db8981150cbc15",
-  measurementId: "G-C83YR24S9G"
+  apiKey: "AIzaSyCdFt7mkv0Qhx7exGLxo910PcUNl55t7eI",
+  authDomain: "quickrecap-41cb9.firebaseapp.com",
+  projectId: "quickrecap-41cb9",
+  storageBucket: "quickrecap-41cb9.firebasestorage.app",
+  messagingSenderId: "655208111569",
+  appId: "1:655208111569:web:213952594ab5ce670294f0",
+  measurementId: "G-DPG488S1BY"
 };
 
 // Initialize Firebase
