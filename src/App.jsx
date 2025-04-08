@@ -4,7 +4,9 @@ import { auth } from "./Config.js"; // Ensure this file exists
 import Login from "./Login.jsx";
 import Signup from "./Signup.jsx";
 import Home from "./Home.jsx";
-import Output from "./Output.jsx"; // Import Output page
+import Profile from "./Profile";
+import Output from "./Output.jsx";
+import FrontPage from "./Frontpage.jsx"; // Import Output page
 
 function App() {
   const [user, setUser] = useState(null);
@@ -30,10 +32,22 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/" element={!user ? <Login /> : <Navigate to="/home" />} />
-      <Route path="/signup" element={<Signup />} />
+      <Route
+        path="/"
+        element={!user ? <FrontPage /> : <Navigate to="/home" />}
+      />
+
+      {/* Login and Signup Routes */}
+      <Route path="/login" element={!user ? <Login /> : <Navigate to="/home" />} />
+      <Route path="/signup" element={!user ? <Signup /> : <Navigate to="/home" />} />
+
+      {/* Home, Profile, and Output pages (Protected Routes) */}
       <Route path="/home" element={user ? <Home /> : <Navigate to="/" />} />
-      <Route path="/output" element={user ? <Output /> : <Navigate to="/" />} /> {/* Protects Output Page */}
+      <Route path="/profile" element={user ? <Profile /> : <Navigate to="/" />} />
+      <Route
+        path="/output"
+        element={user ? <Output /> : <Navigate to="/" />}
+      />
     </Routes>
   );
 }
