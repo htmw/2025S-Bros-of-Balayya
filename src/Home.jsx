@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import { auth, db } from "./Config"; // ✅ Import Firestore
 import { doc, getDoc, setDoc } from "firebase/firestore"; // ✅ Import Firestore functions
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage"; // Import Firebase Storage
+
 
 function Home() {
   const [userName, setUserName] = useState("User");
@@ -22,10 +24,13 @@ function Home() {
     const fetchUserData = async () => {
       if (auth.currentUser) {
         try {
+
+
           const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
 
           if (userDoc.exists()) {
             const userData = userDoc.data();
+
             setUserName(`${userData.firstName} ${userData.lastName}`);
             if (userData.transcript) {
               setTranscript(userData.transcript); // Set the transcript if it exists
@@ -37,6 +42,7 @@ function Home() {
             } else {
               setSummary("No summary available.");
             }
+
           } else {
             console.log("No user data found in Firestore.");
           }
@@ -72,16 +78,19 @@ function Home() {
     const storage = getStorage();
     const storageRef = ref(storage, `uploads/${auth.currentUser.uid}/${file.name}`);
 
+
     const uploadTask = uploadBytesResumable(storageRef, file);
 
     uploadTask.on(
       "state_changed",
       (snapshot) => {
         // Track progress
+
         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
         setUploadProgress(progress);
       },
       (error) => {
+
         console.error("Error uploading file:", error);
         alert("Error uploading file.");
       },
@@ -121,6 +130,7 @@ function Home() {
           <button style={styles.modalCloseButton} onClick={onClose}>Close</button>
         </div>
       </div>
+
     );
   };
 
@@ -193,6 +203,7 @@ function Home() {
             )}
           </div>
 
+
           {/* Right: Two Buttons Stacked */}
           <div style={styles.buttonsWrapper}>
           <button
@@ -209,6 +220,7 @@ function Home() {
           </button>
           </div>
         </div>
+
       </div>
       {isTranscriptModalOpen && (
         <Modal
@@ -241,6 +253,7 @@ const styles = {
     backgroundPosition: "center",
     backgroundRepeat: "no-repeat",
   },
+
   navbar: {
     position: "fixed",
     top: 0,
@@ -284,6 +297,7 @@ const styles = {
     margin: "0 auto",
     background: "rgba(255, 255, 255, 0.9)",
     backdropFilter: "blur(5px)",
+
     padding: "30px",
     borderRadius: "15px",
     boxShadow: "0px 8px 16px rgba(0, 0, 0, 0.1)"
