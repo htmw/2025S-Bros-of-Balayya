@@ -101,91 +101,91 @@ const styles = {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    backgroundImage:
-      "url('https://t3.ftcdn.net/jpg/05/61/61/36/360_F_561613631_mVmmaQn83oibz1ZzIiOfGBFv7CUp3ucw.jpg')",
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    backgroundRepeat: "no-repeat",
+    backgroundColor: "#ECF0F1", // Softer background color
+    padding: "20px",
   },
   card: {
-    background: "rgba(255, 255, 255, 0.2)",
-    backdropFilter: "blur(12px)",
-    padding: "30px",
+    background: "white",
+    padding: "40px",
     borderRadius: "12px",
-    boxShadow: "0px 8px 16px rgba(0, 0, 0, 0.2)",
-    width: "350px",
+    boxShadow: "0px 12px 24px rgba(0, 0, 0, 0.1)",
+    width: "100%",
+    maxWidth: "400px", // Slightly wider for better readability
     textAlign: "center",
-    border: "1px solid rgba(255, 255, 255, 0.3)",
+    border: "1px solid #ddd",
   },
   title: {
-    fontSize: "28px",
-    fontWeight: "bold",
-    color: "#000",
-    marginBottom: "10px",
+    fontSize: "36px", // Larger font for the title
+    fontWeight: "700", // Bold for emphasis
+    color: "#2c3e50", // Dark color for title
+    marginBottom: "16px", // More spacing from the top
+    textShadow: "2px 2px 8px rgba(0, 0, 0, 0.1)", // Soft shadow for title
   },
   subtitle: {
-    fontSize: "16px",
-    color: "#000",
-    marginBottom: "20px",
+    fontSize: "18px",
+    color: "#7f8c8d", // Softer subtitle color
+    marginBottom: "30px", // More breathing space between subtitle and inputs
   },
   inputContainer: {
-    width: "100%",  // Ensures alignment
-    marginBottom: "15px",
+    width: "100%",
+    marginBottom: "20px",
     textAlign: "left",
   },
   label: {
-    color: "#1A237E",
+    color: "#34495e", // Softer grey for labels
     fontWeight: "600",
-    marginBottom: "6px",
+    marginBottom: "8px", // More space below the label
     display: "block",
+    fontSize: "14px",
   },
   input: {
-    width: "calc(100% - 24px)",  // Makes input align perfectly within the box
-    padding: "12px",
-    fontSize: "14px",
-    borderRadius: "6px",
+    width: "100%",
+    padding: "12px 15px",
+    fontSize: "16px",
+    borderRadius: "8px",
     border: "1px solid #ddd",
     outline: "none",
-    display: "block",
-    margin: "0 auto",
-    transition: "border 0.3s",
+    transition: "border-color 0.3s ease",
   },
   button: {
     width: "100%",
-    padding: "12px",
+    padding: "14px",
     fontSize: "16px",
     fontWeight: "bold",
-    borderRadius: "6px",
+    borderRadius: "8px",
     border: "none",
-    background: "#007bff",
+    background: "#FF6F61", // Use the main theme color here
     color: "#fff",
     cursor: "pointer",
-    transition: "0.3s",
-    marginTop: "10px",
+    transition: "background-color 0.3s ease",
+    marginTop: "20px",
+  },
+  buttonHover: {
+    background: "#FF3B2A", // Darker shade on hover
   },
   errorMessage: {
-    background: "#8B0000",
-    color: "white",
-    padding: "10px",
+    background: "#FF4D4D",
+    color: "#fff",
+    padding: "12px",
     borderRadius: "5px",
-    marginBottom: "10px",
+    marginBottom: "15px",
     fontSize: "14px",
   },
   successMessage: {
     background: "#28a745",
-    color: "white",
-    padding: "10px",
+    color: "#fff",
+    padding: "12px",
     borderRadius: "5px",
-    marginBottom: "10px",
+    marginBottom: "15px",
     fontSize: "14px",
   },
   footerText: {
-    marginTop: "15px",
+    marginTop: "20px",
     fontSize: "14px",
   },
   link: {
-    color: "#4B0082",
-    fontWeight: "bold",
+    color: "#007bff",
+    fontWeight: "600", // Stronger emphasis on the link
     cursor: "pointer",
     textDecoration: "underline",
   },
