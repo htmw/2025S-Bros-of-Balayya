@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import { auth, db } from "./Config"; // ✅ Import Firestore
 import { doc, getDoc, setDoc } from "firebase/firestore"; // ✅ Import Firestore functions
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage"; // Import Firebase Storage
+
 
 function Home() {
   const [userName, setUserName] = useState("User");
@@ -23,13 +25,27 @@ function Home() {
     const fetchUserData = async () => {
       if (auth.currentUser) {
         try {
+
+
           const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
 
           if (userDoc.exists()) {
             const userData = userDoc.data();
+
             setUserName(`${userData.firstName} ${userData.lastName}`);
-            setTranscript(userData.transcript || "No transcript available.");
-            setSummary(userData.summary || "No summary available.");
+
+            if (userData.transcript) {
+              setTranscript(userData.transcript); // Set the transcript if it exists
+            } else {
+              setTranscript("No transcript available."); // If no transcript is found
+            }
+            if (userData.summary) {
+              setSummary(userData.summary); // Set the summary if it exists
+            } else {
+              setSummary("No summary available.");
+            }
+
+
           } else {
             console.log("No user data found in Firestore.");
           }
@@ -76,15 +92,18 @@ function Home() {
     const storage = getStorage();
     const storageRef = ref(storage, `uploads/${auth.currentUser.uid}/${file.name}`);
 
+
     const uploadTask = uploadBytesResumable(storageRef, file);
 
     uploadTask.on(
       "state_changed",
       (snapshot) => {
+
         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
         setUploadProgress(progress);
       },
       (error) => {
+
         console.error("Error uploading file:", error);
         alert("Error uploading file.");
       },
@@ -120,8 +139,10 @@ function Home() {
         </div>
         <button style={styles.modalCloseButton} onClick={onClose}>Close</button>
       </div>
+
     </div>
   );
+
 
   return (
     <div style={styles.container}>
@@ -184,6 +205,7 @@ function Home() {
             )}
           </div>
 
+
           <div style={styles.buttonsWrapper}>
             <button
               style={styles.previewButton}
@@ -205,6 +227,7 @@ function Home() {
             </button>
           </div>
         </div>
+
       </div>
 
       {isTranscriptModalOpen && (
@@ -243,6 +266,7 @@ const styles = {
     gap: "20px", // Light grey background like the old page
     fontFamily: "'Roboto', sans-serif",
   },
+
   navbar: {
     position: "fixed",
     top: 0,
@@ -281,7 +305,9 @@ const styles = {
     width: "90%",
     maxWidth: "800px",
     margin: "0 auto",
+
     background: "#fff",  // Solid white background, like the old page's form card
+
     padding: "30px",
     borderRadius: "8px",  // More compact border radius for a cleaner look
     boxShadow: "0px 8px 16px rgba(0, 0, 0, 0.1)",
