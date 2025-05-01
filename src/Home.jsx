@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { jsPDF } from "jspdf";
 import { auth, db } from "./Config"; // ✅ Import Firestore
 import { doc, getDoc, setDoc } from "firebase/firestore"; // ✅ Import Firestore functions
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage"; // Import Firebase Storage
+
 
 
 function Home() {
@@ -15,37 +16,25 @@ function Home() {
   const [fileUrl, setFileUrl] = useState(""); 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [transcript, setTranscript] = useState("");
-  const [summary, setSummary] = useState(""); 
+  const [genericSummary, setSummary] = useState(""); 
+  const [personalizedSummary, setPersonalizedSummary] = useState(""); 
   const [isTranscriptModalOpen, setIsTranscriptModalOpen] = useState(false);
   const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false);
   const [isPersonalizeModalOpen, setIsPersonalizeModalOpen] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
+  
     const fetchUserData = async () => {
       if (auth.currentUser) {
         try {
-
-
-          const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
-
+          const userDocRef = doc(db, "users", auth.currentUser.uid);
+          const userDoc = await getDoc(userDocRef);
           if (userDoc.exists()) {
             const userData = userDoc.data();
-
             setUserName(`${userData.firstName} ${userData.lastName}`);
-
-            if (userData.transcript) {
-              setTranscript(userData.transcript); // Set the transcript if it exists
-            } else {
-              setTranscript("No transcript available."); // If no transcript is found
-            }
-            if (userData.summary) {
-              setSummary(userData.summary); // Set the summary if it exists
-            } else {
-              setSummary("No summary available.");
-            }
-
-
+            setTranscript(userData.transcript || "No transcript available.");
+            setSummary(userData.genericSummary || "No summary available.");
+            setPersonalizedSummary(userData.personalizedSummary || "No personalized summary available.");
           } else {
             console.log("No user data found in Firestore.");
           }
@@ -54,9 +43,15 @@ function Home() {
         }
       }
     };
-
-    fetchUserData();
-  }, []);
+    useEffect(() => {
+      fetchUserData();  // Fetch data initially
+      
+      // Set up a timer to periodically refresh data every 10 seconds
+      const interval = setInterval(fetchUserData, 10000); // refresh every 10 seconds
+  
+      // Clean up the interval when the component is unmounted
+      return () => clearInterval(interval);
+    }, []);
 
   const handleLogout = () => {
     auth.signOut().then(() => navigate("/login"));
@@ -130,18 +125,45 @@ function Home() {
     );
   };
 
-  const Modal = ({ title, content, onClose }) => (
-    <div style={styles.modalOverlay} onClick={onClose}>
-      <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-        <h2>{title}</h2>
-        <div style={styles.scrollableContent}>
-          <p>{content}</p>
-        </div>
-        <button style={styles.modalCloseButton} onClick={onClose}>Close</button>
-      </div>
+  const Modal = ({ title, content, onClose }) => {
 
-    </div>
-  );
+    // Function to download content as PDF
+    const handleDownloadPDF = () => {
+      const doc = new jsPDF();
+      doc.text(content, 10, 10);
+      doc.save(`${title}.pdf`);
+    };
+  
+    // Function to share content via email
+    const handleShareEmail = () => {
+      const subject = `Check out this ${title}`;
+      const body = `Here's the ${title}:\n\n${content}\n\nShared from QuickRecap App.`;
+      window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    };
+  
+    return (
+      <div style={styles.modalOverlay} onClick={onClose}>
+        <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+          <h2>{title}</h2>
+          <div style={styles.scrollableContent}>
+            <p>{content}</p>
+          </div>
+  
+          {/* Action buttons for PDF download and email share */}
+          <div style={styles.actionButtons}>
+            <button style={styles.iconButton} onClick={handleDownloadPDF}>
+              <i className="fa fa-download"></i> Download PDF
+            </button>
+            <button style={styles.iconButton} onClick={handleShareEmail}>
+              <i className="fa fa-envelope"></i> Share via Email
+            </button>
+          </div>
+  
+          <button style={styles.modalCloseButton} onClick={onClose}>Close</button>
+        </div>
+      </div>
+    );
+  };
 
 
   return (
@@ -240,14 +262,14 @@ function Home() {
       {isSummaryModalOpen && (
         <Modal
           title="Summary"
-          content={summary}
+          content={genericSummary}
           onClose={() => setIsSummaryModalOpen(false)}
         />
       )}
       {isPersonalizeModalOpen && (
         <Modal
           title="Personalize"
-          content="Coming soon..."
+          content={personalizedSummary}
           onClose={() => setIsPersonalizeModalOpen(false)}
         />
       )}
@@ -481,6 +503,28 @@ const styles = {
     overflowY: "auto", // Enable vertical scrolling
     marginBottom: "20px", // Space before the close button
   },
+  actionButtons: {
+    display: "flex",
+    justifyContent: "space-around",  // Space out the buttons
+    marginTop: "10px",
+    gap: "20px",  // Space between the buttons
+  },
+
+  iconButton: {
+    background: "#FF6F61",
+    color: "#fff",
+    padding: "10px 20px",
+    fontSize: "14px",
+    fontWeight: "bold",
+    borderRadius: "6px",
+    border: "none",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    gap: "5px",  // Space between the icon and the text
+    transition: "0.3s",
+  },
+
   modalCloseButton: {
     background: "#FF6F61",
     color: "#fff",

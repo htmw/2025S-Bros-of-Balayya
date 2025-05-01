@@ -8,6 +8,7 @@ function Signup() {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
+    role: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -44,6 +45,7 @@ function Signup() {
       await setDoc(doc(db, "users", user.uid), {
         firstName: formData.firstName,
         lastName: formData.lastName,
+        role: formData.role,
         email: formData.email,
         createdAt: new Date(),
       });
@@ -79,6 +81,22 @@ function Signup() {
             />
           </div>
         ))}
+
+        <div style={styles.inputContainer}>
+          <label style={styles.label}>Role:</label>
+          <select
+            name="role"
+            value={formData.role}
+            onChange={handleInputChange}
+            style={styles.input}
+          >
+            <option value="">Select Role</option>
+            <option value="student">Student</option>
+            <option value="entrepreneur">Entrepreneur</option>
+            <option value="teacher">Teacher</option>
+            <option value="content-creator">Content Creator</option>
+          </select>
+        </div>
 
         {/* Signup Button */}
         <button onClick={handleSignup} style={styles.button} disabled={loading}>
@@ -128,7 +146,6 @@ const styles = {
   },
   inputContainer: {
     width: "100%",
-    marginBottom: "20px",
     textAlign: "left",
   },
   label: {

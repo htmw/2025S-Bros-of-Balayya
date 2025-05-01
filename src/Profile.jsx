@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom"; // Import useNavigate
 function Profile() {
   const [userName, setUserName] = useState({ firstName: "", lastName: "" });
   const [email, setEmail] = useState("");
+  const [role, setRole] = useState("");
   const [isEditing, setIsEditing] = useState(false); // Track edit mode
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate(); // Initialize the navigate function
@@ -19,7 +20,8 @@ function Profile() {
           if (userDoc.exists()) {
             const userData = userDoc.data();
             setUserName({ firstName: userData.firstName, lastName: userData.lastName });
-            setEmail(auth.currentUser.email); // Email is directly from the auth object
+            setEmail(auth.currentUser.email);
+            setRole(userData.role || ""); // Email is directly from the auth object
           } else {
             console.log("No user data found in Firestore.");
           }
@@ -37,6 +39,10 @@ function Profile() {
     setUserName(prevState => ({ ...prevState, [name]: value }));
   };
 
+  const handleRoleChange = (e) => {
+    setRole(e.target.value); // Update role when the user changes the dropdown
+  };
+
   const handleSaveChanges = async () => {
     if (!userName.firstName || !userName.lastName) {
       setErrorMessage("Please fill in both first and last name.");
@@ -45,7 +51,7 @@ function Profile() {
 
     try {
       const userRef = doc(db, "users", auth.currentUser.uid);
-      await setDoc(userRef, { firstName: userName.firstName, lastName: userName.lastName }, { merge: true });
+      await setDoc(userRef, { firstName: userName.firstName, lastName: userName.lastName, role: role }, { merge: true });
       setIsEditing(false); // Exit editing mode after save
       setErrorMessage(""); // Clear error message
     } catch (error) {
@@ -108,6 +114,25 @@ function Profile() {
           <div style={styles.profileRow}>
             <span style={styles.profileLabel}>Email:</span>
             <span>{email}</span>
+          </div>
+
+          <div style={styles.profileRow}>
+            <span style={styles.profileLabel}>Role:</span>
+            {isEditing ? (
+              <select
+                value={role}
+                onChange={handleRoleChange}
+                style={styles.input}
+              >
+                <option value="">Select Role</option>
+                <option value="student">Student</option>
+                <option value="entrepreneur">Entrepreneur</option>
+                <option value="teacher">Teacher</option>
+                <option value="content-creator">Content Creator</option>
+              </select>
+            ) : (
+              <span>{role || "Not set"}</span>
+              )}
           </div>
 
           {isEditing ? (
